@@ -68,7 +68,7 @@ function Footer() {
             </li>
             <li>
               <a href="mailto:lokwanivishal456@gmail.com">
-                appointment@healthplus.com
+                appointment@AgriGenesis.com
               </a>
             </li>
             <li>
