@@ -9,7 +9,7 @@ import Appointment from "./Pages/Appointment";
 function App() {
   return (
     <div className="App">
-      <Router basename="/AgriGenesis">
+      <Router>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/legal" element={<Legal />} />
