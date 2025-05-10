@@ -107,6 +107,9 @@ function MyAppointments() {
                 <p>
                   <strong>📝 Issue:</strong> {appointment.issue}
                 </p>
+                <p>
+                  <strong>📝 Number:</strong> {appointment.number}
+                </p>
                 {["pending", "confirmed"].includes(appointment.status) && (
                   <button
                     onClick={() => handleCancelAppointment(appointment._id)}

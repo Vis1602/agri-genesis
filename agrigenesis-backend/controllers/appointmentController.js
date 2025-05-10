@@ -52,7 +52,7 @@ exports.getAppointmentById = async (req, res) => {
 // @access  Private
 exports.createAppointment = async (req, res) => {
   try {
-    const { expertId, appointmentDate, mode, issue } = req.body;
+    const { expertId, appointmentDate, mode, issue , number} = req.body;
 
     // Validate appointment date is in the future
     if (new Date(appointmentDate) <= new Date()) {
@@ -67,6 +67,7 @@ exports.createAppointment = async (req, res) => {
       appointmentDate,
       mode,
       issue,
+      number,
     });
 
     const populatedAppointment = await appointment.populate([

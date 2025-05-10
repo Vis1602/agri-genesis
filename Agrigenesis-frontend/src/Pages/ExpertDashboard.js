@@ -86,8 +86,12 @@ function ExpertDashboard() {
                 <p>
                   <strong>Status:</strong> {appointment.status}
                 </p>
+
                 <p>
                   <strong>Issue:</strong> {appointment.issue}
+                </p>
+                <p>
+                  <strong>Number:</strong> {appointment.number}
                 </p>
                 {appointment.status === "pending" && (
                   <div

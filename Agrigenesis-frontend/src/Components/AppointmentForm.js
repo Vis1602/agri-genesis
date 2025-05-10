@@ -81,6 +81,7 @@ function AppointmentForm() {
         appointmentDate: appointmentTime,
         mode: preferredMode,
         issue,
+        number: FarmerNumber,
       });
 
       toast.success("Appointment Scheduled!", {
