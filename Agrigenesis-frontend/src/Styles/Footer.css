@@ -1,0 +1,193 @@
+.footer-section {
+  background: var(--gradient-dark);
+  padding: 40px;
+  border-radius: 16px 16px 0 0;
+  box-shadow: var(--shadow-lg);
+  color: #ffffff;
+}
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  color: white;
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 40px;
+}
+/* Title */
+.ft-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: shine 3s infinite linear;
+  text-decoration: none;
+}
+.ft-sign {
+  color: #1ecab0;
+  font-family: Cambria, sans-serif;
+  font-size: 40px;
+  font-weight: bold;
+}
+.ft-description {
+  width: 420px;
+  margin: 16px 0 40px;
+  color: var(--text-secondary);
+  font-family: "Rubik", sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.8px;
+  line-height: 1.8;
+}
+.ft-input-title {
+  color: white;
+  font-family: "Rubik", sans-serif;
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 0.8px;
+}
+.ft-input {
+  width: 300px;
+  margin: 20px 8px 0 0;
+  padding: 12px 20px;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  outline: transparent;
+  font-family: "Rubik", sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.8px;
+  transition: all 0.3s ease;
+}
+.ft-input:focus {
+  border-color: var(--accent-blue);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+.ft-btn {
+  padding: 14px 18px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #3a3a4b, #2a2a3b);
+  border: none;
+  border-radius: 28px;
+  font-size: 18px;
+  font-family: "Rubik", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.ft-btn:hover {
+  background: linear-gradient(145deg, #4a4a5b, #3a3a4b);
+  transform: scale(1.05);
+}
+/* Lists */
+.ft-list-title {
+  color: var(--text-primary);
+  margin: 16px 0;
+  font-family: "Rubik", sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: 0.8px;
+  margin-bottom: 1rem;
+}
+.ft-list-items {
+  list-style-type: none;
+}
+.ft-list-items li a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  padding: 0 0 2px 0;
+  border-bottom: 2px dotted transparent;
+  transition: color 0.3s ease;
+}
+.ft-list-items li {
+  margin: 24px 0;
+  font-family: "Rubik", sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0.8px;
+}
+.ft-list-items li a:hover {
+  color: var(--accent-blue);
+}
+/* CopyRight */
+.ft-copyright {
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #cbcdd3;
+  font-family: "Rubik", sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 0.8px;
+}
+.ft-social-links {
+  list-style-type: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+.ft-social-links li a {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.ft-social-links li a svg {
+  width: 24px;
+  height: 24px;
+  padding: 1px;
+}
+.ft-social-links li a svg path {
+  fill: #cbcdd3;
+}
+.ft-social-links li a:hover {
+  background: var(--gradient-blue);
+  transform: translateY(-2px);
+}
+.ft-social-links li a:hover svg path {
+  fill: #1a8efd;
+  border: 2px solid #1a8efd;
+}
+/* Responsive */
+@media screen and (max-width: 700px) {
+  .footer-container {
+    padding: 24px;
+  }
+  .ft-description {
+    width: 100%;
+    margin: 16px 0 24px;
+  }
+  .ft-input {
+    width: 100%;
+    margin: 16px 0;
+  }
+  .ft-btn {
+    width: 100%;
+    margin: 0 0 16px;
+  }
+  .ft-copyright {
+    padding: 18px;
+    display: block;
+    text-align: center;
+  }
+  .ft-social-links {
+    margin: 16px 0 0;
+  }
+}

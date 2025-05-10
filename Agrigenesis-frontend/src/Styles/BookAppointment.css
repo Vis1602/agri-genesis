@@ -1,0 +1,145 @@
+.ba-section {
+  padding: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  background: var(--gradient-dark);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.ba-text-content {
+  width: 50%;
+  position: relative;
+  z-index: 1;
+}
+
+.ba-text-content .section-title {
+  text-align: left;
+  margin-bottom: 2rem;
+}
+
+.ba-text-content .section-title > span {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: shine 3s infinite linear;
+  position: relative;
+  font-weight: 800;
+}
+
+.section-title > span::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, transparent);
+  border-radius: 3px;
+}
+/* Image */
+.ba-image-content {
+  width: 50%;
+  max-width: 100%;
+  text-align: center;
+}
+.ba-image1 {
+  width: 80%;
+  height: auto;
+}
+/* Text */
+.ba-text-content {
+  width: 50%;
+}
+
+.ba-text-content .section-title {
+  text-align: left;
+}
+
+.ba-text-content .section-title > span {
+  padding-left: 0;
+}
+
+.ba-text-content .section-title > span::after {
+  left: 0;
+  width: 60%;
+}
+
+.ba-title > span {
+  position: relative;
+}
+
+.ba-title span::before {
+  content: "";
+  position: absolute;
+  width: 75%;
+  height: 4px;
+  background-color: #9d2553;
+  border-radius: 8px;
+  left: 0;
+  bottom: -12px;
+  composes: section-title;
+}
+.ba-description {
+  color: var(--text-secondary);
+  font-family: "Rubik", sans-serif;
+  font-size: 18px;
+  line-height: 1.8;
+  margin-bottom: 32px;
+}
+/* Checks */
+.ba-checks {
+  color: var(--text-secondary);
+  font-family: "Rubik", sans-serif;
+  font-size: 18px;
+  margin: 16px 0;
+}
+.ba-check-first {
+  margin-top: 40px;
+}
+.ba-check-last {
+  margin-bottom: 40px;
+}
+.ba-checks svg {
+  color: var(--accent-blue);
+  margin-right: 8px;
+}
+/* Book Appointment Button */
+.ba-appointment-btn {
+  background: var(--gradient-blue);
+  color: var(--text-primary);
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-size: 18px;
+  font-family: "Rubik", sans-serif;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.ba-appointment-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+/* Responsive */
+@media screen and (max-width: 1000px) {
+  .ba-section {
+    display: block;
+  }
+  .ba-image-content {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 32px 0;
+  }
+  .ba-text-content {
+    width: 100%;
+  }
+  .ba-image1 {
+    width: 80%;
+    height: 80%;
+  }
+}
