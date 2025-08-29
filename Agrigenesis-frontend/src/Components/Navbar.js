@@ -44,13 +44,7 @@ function Navbar() {
   };
 
   const handleChatBtnClick = () => {
-    if (!isButtonDisabled) {
-      toast.info("Experiencing high traffic, Please wait a moment.", {
-        position: toast.POSITION.TOP_CENTER,
-        onOpen: () => setIsButtonDisabled(true),
-        onClose: () => setIsButtonDisabled(false),
-      });
-    }
+    navigate("/chat");
   };
 
   const handleLogin = () => {
@@ -216,6 +210,11 @@ function Navbar() {
                   </Link>
                 </li>
               )}
+              <li>
+                <Link onClick={openNav} to="/chat">
+                  Live Chat
+                </Link>
+              </li>
               <li>
                 <button
                   onClick={() => {

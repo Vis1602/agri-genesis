@@ -111,4 +111,16 @@ router.get("/experts", async (req, res) => {
   }
 });
 
+// @desc    Get all farmers
+// @route   GET /api/users/farmers
+router.get("/farmers", async (req, res) => {
+  try {
+    const farmers = await User.find({ role: "farmer" })
+      .select("-password");
+    res.json(farmers);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;

@@ -10,6 +10,7 @@ import MyAppointments from "./Pages/MyAppointments";
 import ExpertDashboard from "./Pages/ExpertDashboard";
 import PrivateRoute from "./Components/PrivateRoute";
 import RegisterPage from "./Pages/RegisterPage";
+import Chat from "./Pages/Chat";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="/chat" element={<Chat />} />
         </Routes>
       </Router>
       <ToastContainer position="top-center" />
