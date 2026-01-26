@@ -8,12 +8,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "../Styles/Navbar.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { authService } from "../services/auth";
 
 function Navbar() {
   const [nav, setNav] = useState(false);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
   const location = useLocation();
@@ -107,7 +105,7 @@ function Navbar() {
         {currentUser && (
           <>
             <li>
-              <Link to="/appointments" >
+              <Link to="/appointments">
                 <button
                   style={{
                     background: "none",
@@ -136,7 +134,6 @@ function Navbar() {
         <button
           className="navbar-btn"
           type="button"
-          disabled={isButtonDisabled}
           onClick={handleChatBtnClick}
         >
           <FontAwesomeIcon icon={faCommentDots} /> Live Chat

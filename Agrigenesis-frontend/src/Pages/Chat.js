@@ -39,13 +39,13 @@ function Chat() {
   useEffect(() => {
     console.log("=== Chat Component Mounted ===");
     console.log("Current user:", currentUser);
-    
+
     if (!currentUser || !currentUser._id) {
       console.log("User not authenticated, redirecting to login");
-      navigate('/login');
+      navigate("/login");
       return;
     }
-    
+
     setIsAuthenticated(true);
     const envTest = testEnv();
     console.log("Environment test result:", envTest);
@@ -53,20 +53,27 @@ function Chat() {
 
   useEffect(() => {
     async function fetchList() {
-      if (!isAuthenticated || !currentUser?._id || !currentUser?.role || chatListLoaded || chatListLoading) return;
-      
-      console.log('Fetching chat list for user role:', currentUser.role);
+      if (
+        !isAuthenticated ||
+        !currentUser?._id ||
+        !currentUser?.role ||
+        chatListLoaded ||
+        chatListLoading
+      )
+        return;
+
+      console.log("Fetching chat list for user role:", currentUser.role);
       setChatListLoading(true);
       try {
         if (currentUser.role === "farmer") {
-          console.log('Fetching experts for farmer');
+          console.log("Fetching experts for farmer");
           const experts = await getAllExperts();
-          console.log('Experts fetched:', experts.length);
+          console.log("Experts fetched:", experts.length);
           setChatList(experts);
         } else {
-          console.log('Fetching farmers for expert');
+          console.log("Fetching farmers for expert");
           const farmers = await getAllFarmers();
-          console.log('Farmers fetched:', farmers.length);
+          console.log("Farmers fetched:", farmers.length);
           setChatList(farmers);
         }
         setChatListLoaded(true);
@@ -80,40 +87,48 @@ function Chat() {
       }
     }
     fetchList();
-  }, [isAuthenticated, currentUser?._id, currentUser?.role, chatListLoaded, chatListLoading]);
+  }, [
+    isAuthenticated,
+    currentUser?._id,
+    currentUser?.role,
+    chatListLoaded,
+    chatListLoading,
+  ]);
 
   useEffect(() => {
     if (!isAuthenticated || !currentUser?._id) return;
-    
-    console.log('Setting up socket connection for user:', currentUser._id);
+
+    console.log("Setting up socket connection for user:", currentUser._id);
     socketRef.current = io(SOCKET_URL, {
-      transports: ['websocket', 'polling'],
+      transports: ["websocket", "polling"],
       timeout: 10000,
       reconnection: true,
       reconnectionAttempts: 3,
-      reconnectionDelay: 1000
+      reconnectionDelay: 1000,
     });
-    
-    socketRef.current.on('connect', () => {
-      console.log('Connected to server');
+
+    socketRef.current.on("connect", () => {
+      console.log("Connected to server");
     });
-    
-    socketRef.current.on('disconnect', (reason) => {
-      console.log('Disconnected from server:', reason);
+
+    socketRef.current.on("disconnect", (reason) => {
+      console.log("Disconnected from server:", reason);
     });
-    
-    socketRef.current.on('connect_error', (error) => {
-      console.error('Connection error:', error);
-      console.error('Socket connection failed. Please check if the server is running.');
+
+    socketRef.current.on("connect_error", (error) => {
+      console.error("Connection error:", error);
+      console.error(
+        "Socket connection failed. Please check if the server is running.",
+      );
     });
-    
-    socketRef.current.on('error', (error) => {
-      console.error('Socket error:', error);
+
+    socketRef.current.on("error", (error) => {
+      console.error("Socket error:", error);
     });
-    
+
     return () => {
       if (socketRef.current) {
-        console.log('Disconnecting socket');
+        console.log("Disconnecting socket");
         socketRef.current.disconnect();
       }
     };
@@ -121,51 +136,52 @@ function Chat() {
 
   useEffect(() => {
     if (!selectedChat || aiMode || !currentUser || !socketRef.current) return;
-    
+
     const room = getRoomId(currentUser._id, selectedChat._id);
     console.log(`Setting up chat for room: ${room}`);
     setMessages([]);
     setLoading(true);
-    
+
     // Join room
     socketRef.current.emit("joinRoom", {
       room,
       userId: currentUser._id,
       userName: currentUser.name,
     });
-    
+
     // Fetch chat history - URL encode the room parameter to handle special characters
     const encodedRoom = encodeURIComponent(room);
-    axios.get(`${API_URL}/chat/${encodedRoom}`)
-      .then(res => {
+    axios
+      .get(`${API_URL}/chat/${encodedRoom}`)
+      .then((res) => {
         console.log(`Chat history loaded for room: ${room}`, res.data);
         setMessages(res.data || []);
       })
-      .catch(error => {
-        console.error('Failed to fetch chat history:', error);
-        console.error('Error details:', error.response?.data || error.message);
+      .catch((error) => {
+        console.error("Failed to fetch chat history:", error);
+        console.error("Error details:", error.response?.data || error.message);
         setMessages([]);
         // Show user-friendly error message
         if (error.response?.status === 404) {
-          console.log('No chat history found for this room yet');
+          console.log("No chat history found for this room yet");
         } else if (error.response?.status >= 500) {
-          console.error('Server error while fetching chat history');
+          console.error("Server error while fetching chat history");
         }
       })
       .finally(() => setLoading(false));
-    
+
     // Listen for new messages
     const handleNewMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
     };
-    
+
     const handleActiveUsers = (users) => {
       setActiveUsers(users || []);
     };
-    
+
     socketRef.current.on("chatMessage", handleNewMessage);
     socketRef.current.on("activeUsers", handleActiveUsers);
-    
+
     return () => {
       if (socketRef.current) {
         socketRef.current.emit("leaveRoom", { room, userId: currentUser._id });
@@ -173,7 +189,7 @@ function Chat() {
         socketRef.current.off("activeUsers", handleActiveUsers);
       }
     };
-  }, [selectedChat?._id, aiMode, currentUser?._id]); // Use stable IDs instead of full objects
+  }, [selectedChat, aiMode, currentUser]); // Include full objects in dependency array
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -181,7 +197,7 @@ function Chat() {
 
   const sendMessage = () => {
     if (!input.trim() || !selectedChat || !socketRef.current) return;
-    
+
     const room = getRoomId(currentUser._id, selectedChat._id);
     const msg = {
       room,
@@ -190,7 +206,7 @@ function Chat() {
       message: input,
       isAI: false,
     };
-    
+
     // Send message via Socket.io
     socketRef.current.emit("chatMessage", msg);
     setInput("");
@@ -200,26 +216,35 @@ function Chat() {
     if (!aiInput.trim()) return;
     console.log("=== Sending AI Message ===");
     console.log("Input:", aiInput);
-    
+
     const userMsg = { sender: "user", message: aiInput };
     setAiMessages((prev) => [...prev, userMsg]);
     const currentInput = aiInput;
     setAiInput("");
     setLoading(true);
-    
+
     try {
       console.log("Calling askAI function...");
       const result = await askAI(currentInput);
       console.log("AI Result:", result);
-      
+
       if (result.success) {
-        setAiMessages((prev) => [...prev, { sender: "ai", message: result.answer }]);
+        setAiMessages((prev) => [
+          ...prev,
+          { sender: "ai", message: result.answer },
+        ]);
       } else {
-        setAiMessages((prev) => [...prev, { sender: "ai", message: result.answer }]);
+        setAiMessages((prev) => [
+          ...prev,
+          { sender: "ai", message: result.answer },
+        ]);
       }
     } catch (error) {
       console.error("AI Error:", error);
-      setAiMessages((prev) => [...prev, { sender: "ai", message: "AI failed to respond. Please try again." }]);
+      setAiMessages((prev) => [
+        ...prev,
+        { sender: "ai", message: "AI failed to respond. Please try again." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -247,11 +272,18 @@ function Chat() {
   };
 
   const getInitials = (name) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
   };
 
   const formatTime = (date) => {
-    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(date).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const isMobile = window.innerWidth <= 768;
@@ -273,7 +305,7 @@ function Chat() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 ">
       <Navbar />
-      
+
       <div className="flex h-[calc(100vh-80px)] max-w-7xl mx-auto">
         {/* Sidebar - User List */}
         {showChatSidebar && (
@@ -292,7 +324,9 @@ function Chat() {
             {/* AI Assistant Option */}
             <div
               className={`flex items-center p-4 cursor-pointer transition-colors ${
-                aiMode ? 'bg-blue-50 border-r-4 border-blue-500' : 'hover:bg-gray-50'
+                aiMode
+                  ? "bg-blue-50 border-r-4 border-blue-500"
+                  : "hover:bg-gray-50"
               }`}
               onClick={handleSelectAI}
             >
@@ -301,7 +335,9 @@ function Chat() {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-800">AI Assistant</h3>
-                <p className="text-sm text-gray-500">Get instant help with farming</p>
+                <p className="text-sm text-gray-500">
+                  Get instant help with farming
+                </p>
               </div>
             </div>
 
@@ -314,7 +350,10 @@ function Chat() {
                 </div>
               ) : chatList.length === 0 ? (
                 <div className="p-4 text-center text-gray-500">
-                  <p>No {currentUser?.role === 'farmer' ? 'experts' : 'farmers'} available</p>
+                  <p>
+                    No {currentUser?.role === "farmer" ? "experts" : "farmers"}{" "}
+                    available
+                  </p>
                 </div>
               ) : (
                 chatList.map((user) => (
@@ -322,8 +361,8 @@ function Chat() {
                     key={user._id}
                     className={`flex items-center p-4 cursor-pointer transition-colors ${
                       selectedChat && selectedChat._id === user._id && !aiMode
-                        ? 'bg-blue-50 border-r-4 border-blue-500'
-                        : 'hover:bg-gray-50'
+                        ? "bg-blue-50 border-r-4 border-blue-500"
+                        : "hover:bg-gray-50"
                     }`}
                     onClick={() => handleSelectUser(user)}
                   >
@@ -331,9 +370,12 @@ function Chat() {
                       {getInitials(user.name)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-800 truncate">{user.name}</h3>
+                      <h3 className="font-semibold text-gray-800 truncate">
+                        {user.name}
+                      </h3>
                       <p className="text-sm text-gray-500 truncate">
-                        {user.specialization || (user.role === 'farmer' ? 'Farmer' : 'Expert')}
+                        {user.specialization ||
+                          (user.role === "farmer" ? "Farmer" : "Expert")}
                       </p>
                     </div>
                     <div className="flex flex-col items-end">
@@ -357,12 +399,22 @@ function Chat() {
                   onClick={handleBackToUsers}
                   className="mr-3 p-2 hover:bg-gray-100 rounded-full transition-colors"
                 >
-                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  <svg
+                    className="w-6 h-6 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                 </button>
               )}
-              
+
               <div className="flex items-center flex-1">
                 {aiMode ? (
                   <>
@@ -380,17 +432,27 @@ function Chat() {
                       {getInitials(selectedChat.name)}
                     </div>
                     <div>
-                      <h2 className="font-bold text-gray-800">{selectedChat.name}</h2>
+                      <h2 className="font-bold text-gray-800">
+                        {selectedChat.name}
+                      </h2>
                       <p className="text-sm text-gray-500">
-                        {selectedChat.specialization || (selectedChat.role === 'farmer' ? 'Farmer' : 'Expert')}
-                        {activeUsers.length > 0 && ` • ${activeUsers.length} online`}
+                        {selectedChat.specialization ||
+                          (selectedChat.role === "farmer"
+                            ? "Farmer"
+                            : "Expert")}
+                        {activeUsers.length > 0 &&
+                          ` • ${activeUsers.length} online`}
                       </p>
                     </div>
                   </>
                 ) : (
                   <div className="text-center flex-1">
-                    <h2 className="text-xl font-bold text-gray-800">Welcome to AgriGenesis Chat</h2>
-                    <p className="text-gray-500">Select a user or AI assistant to start chatting</p>
+                    <h2 className="text-xl font-bold text-gray-800">
+                      Welcome to AgriGenesis Chat
+                    </h2>
+                    <p className="text-gray-500">
+                      Select a user or AI assistant to start chatting
+                    </p>
                   </div>
                 )}
               </div>
@@ -406,8 +468,12 @@ function Chat() {
                       <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
                         🤖
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">AI Assistant</h3>
-                      <p className="text-gray-500">Ask me anything about farming, crops, or agriculture!</p>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                        AI Assistant
+                      </h3>
+                      <p className="text-gray-500">
+                        Ask me anything about farming, crops, or agriculture!
+                      </p>
                     </div>
                   )}
                   {aiMessages.map((msg, idx) => (
@@ -431,8 +497,14 @@ function Chat() {
                       <div className="bg-white text-gray-800 shadow-sm border px-4 py-2 rounded-2xl">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                          <div
+                            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                            style={{ animationDelay: "0.1s" }}
+                          ></div>
+                          <div
+                            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                            style={{ animationDelay: "0.2s" }}
+                          ></div>
                         </div>
                       </div>
                     </div>
@@ -452,8 +524,13 @@ function Chat() {
                       <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
                         {getInitials(selectedChat.name)}
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">Start a conversation</h3>
-                      <p className="text-gray-500">Send a message to begin chatting with {selectedChat.name}</p>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                        Start a conversation
+                      </h3>
+                      <p className="text-gray-500">
+                        Send a message to begin chatting with{" "}
+                        {selectedChat.name}
+                      </p>
                     </div>
                   )}
                   {messages.map((msg, idx) => (
@@ -469,9 +546,13 @@ function Chat() {
                         }`}
                       >
                         <p className="text-sm">{msg.message}</p>
-                        <p className={`text-xs mt-1 ${
-                          msg.sender === currentUser._id ? "text-blue-100" : "text-gray-400"
-                        }`}>
+                        <p
+                          className={`text-xs mt-1 ${
+                            msg.sender === currentUser._id
+                              ? "text-blue-100"
+                              : "text-gray-400"
+                          }`}
+                        >
                           {formatTime(msg.createdAt)}
                         </p>
                       </div>
@@ -486,18 +567,30 @@ function Chat() {
                     <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6">
                       💬
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Start a Conversation</h3>
-                    <p className="text-gray-500 mb-6">Choose someone from the sidebar to begin chatting</p>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                      Start a Conversation
+                    </h3>
+                    <p className="text-gray-500 mb-6">
+                      Choose someone from the sidebar to begin chatting
+                    </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
                       <div className="p-4 bg-white rounded-lg shadow-sm border">
                         <div className="text-2xl mb-2">🤖</div>
-                        <h4 className="font-semibold text-gray-800">AI Assistant</h4>
-                        <p className="text-sm text-gray-500">Get instant help</p>
+                        <h4 className="font-semibold text-gray-800">
+                          AI Assistant
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Get instant help
+                        </p>
                       </div>
                       <div className="p-4 bg-white rounded-lg shadow-sm border">
                         <div className="text-2xl mb-2">👥</div>
-                        <h4 className="font-semibold text-gray-800">Experts & Farmers</h4>
-                        <p className="text-sm text-gray-500">Connect with community</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Experts & Farmers
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Connect with community
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -511,9 +604,18 @@ function Chat() {
                 <div className="flex items-center space-x-3">
                   <input
                     value={aiMode ? aiInput : input}
-                    onChange={e => aiMode ? setAiInput(e.target.value) : setInput(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && (aiMode ? sendAiMessage() : sendMessage())}
-                    placeholder={aiMode ? "Ask the AI assistant..." : "Type a message..."}
+                    onChange={(e) =>
+                      aiMode
+                        ? setAiInput(e.target.value)
+                        : setInput(e.target.value)
+                    }
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      (aiMode ? sendAiMessage() : sendMessage())
+                    }
+                    placeholder={
+                      aiMode ? "Ask the AI assistant..." : "Type a message..."
+                    }
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     disabled={loading}
                   />
@@ -522,8 +624,18 @@ function Chat() {
                     disabled={loading || !(aiMode ? aiInput : input).trim()}
                     className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -532,7 +644,7 @@ function Chat() {
           </div>
         )}
       </div>
-      
+
       <Footer />
     </div>
   );

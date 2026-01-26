@@ -12,7 +12,7 @@ const RegisterPage = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "farmer", 
+    role: "farmer",
     specialization: "",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -36,13 +36,13 @@ const RegisterPage = () => {
     }
 
     try {
-      const userData = await authService.register(formData);
+      await authService.register(formData);
       toast.success("Registration successful! Please login.");
       navigate("/login"); // Redirect to login page
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          "Registration failed. Please try again."
+          "Registration failed. Please try again.",
       );
     } finally {
       setIsLoading(false);
