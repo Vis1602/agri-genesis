@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import Navbar from "../Components/Navbar";
-import Footer from "../Components/Footer";
 import { getAllExperts, getAllFarmers } from "../services/api";
 import { authService } from "../services/auth";
 import { askAI } from "../services/geminiService";
@@ -33,6 +32,7 @@ function Chat() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const shouldScrollRef = useRef(false);
   const currentUser = authService.getCurrentUser();
 
   // Check authentication on component mount
@@ -173,6 +173,7 @@ function Chat() {
     // Listen for new messages
     const handleNewMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
+      shouldScrollRef.current = true;
     };
 
     const handleActiveUsers = (users) => {
@@ -189,10 +190,14 @@ function Chat() {
         socketRef.current.off("activeUsers", handleActiveUsers);
       }
     };
-  }, [selectedChat, aiMode, currentUser]); // Include full objects in dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedChat?._id, aiMode, currentUser?._id]); // Use stable IDs to prevent infinite loop
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (shouldScrollRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      shouldScrollRef.current = false;
+    }
   }, [messages, aiMessages]);
 
   const sendMessage = () => {
@@ -210,6 +215,7 @@ function Chat() {
     // Send message via Socket.io
     socketRef.current.emit("chatMessage", msg);
     setInput("");
+    shouldScrollRef.current = true;
   };
 
   const sendAiMessage = async () => {
@@ -219,6 +225,7 @@ function Chat() {
 
     const userMsg = { sender: "user", message: aiInput };
     setAiMessages((prev) => [...prev, userMsg]);
+    shouldScrollRef.current = true;
     const currentInput = aiInput;
     setAiInput("");
     setLoading(true);
@@ -233,11 +240,13 @@ function Chat() {
           ...prev,
           { sender: "ai", message: result.answer },
         ]);
+        shouldScrollRef.current = true;
       } else {
         setAiMessages((prev) => [
           ...prev,
           { sender: "ai", message: result.answer },
         ]);
+        shouldScrollRef.current = true;
       }
     } catch (error) {
       console.error("AI Error:", error);
@@ -245,6 +254,7 @@ function Chat() {
         ...prev,
         { sender: "ai", message: "AI failed to respond. Please try again." },
       ]);
+      shouldScrollRef.current = true;
     } finally {
       setLoading(false);
     }
@@ -482,27 +492,23 @@ function Chat() {
                       className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                          msg.sender === "user"
-                            ? "bg-blue-500 text-white"
-                            : "bg-white text-gray-800 shadow-sm border"
-                        }`}
+                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl bg-blue-600 text-white shadow-sm`}
                       >
-                        <p className="text-sm">{msg.message}</p>
+                        <p className="text-sm font-medium">{msg.message}</p>
                       </div>
                     </div>
                   ))}
                   {loading && (
                     <div className="flex justify-start">
-                      <div className="bg-white text-gray-800 shadow-sm border px-4 py-2 rounded-2xl">
+                      <div className="bg-blue-600 text-white shadow-sm px-4 py-2 rounded-2xl">
                         <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-blue-200 rounded-full animate-bounce"></div>
                           <div
-                            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                            className="w-2 h-2 bg-blue-200 rounded-full animate-bounce"
                             style={{ animationDelay: "0.1s" }}
                           ></div>
                           <div
-                            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                            className="w-2 h-2 bg-blue-200 rounded-full animate-bounce"
                             style={{ animationDelay: "0.2s" }}
                           ></div>
                         </div>
@@ -539,25 +545,17 @@ function Chat() {
                       className={`flex ${msg.sender === currentUser._id ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                          msg.sender === currentUser._id
-                            ? "bg-blue-500 text-white"
-                            : "bg-white text-gray-800 shadow-sm border"
-                        }`}
+                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl bg-blue-600 text-white shadow-sm`}
                       >
                         <p className="text-sm">{msg.message}</p>
                         <p
-                          className={`text-xs mt-1 ${
-                            msg.sender === currentUser._id
-                              ? "text-blue-100"
-                              : "text-gray-400"
-                          }`}
+                          className={`text-xs mt-1 text-blue-100`}
                         >
                           {formatTime(msg.createdAt)}
                         </p>
                       </div>
                     </div>
-                  ))}
+                  ))}}
                   <div ref={messagesEndRef} />
                 </div>
               ) : (
@@ -616,7 +614,7 @@ function Chat() {
                     placeholder={
                       aiMode ? "Ask the AI assistant..." : "Type a message..."
                     }
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                     disabled={loading}
                   />
                   <button
@@ -644,8 +642,6 @@ function Chat() {
           </div>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 }
